@@ -138,6 +138,8 @@ class MetalViewHDR: MTKView {
         metalLayer = self.layer as? CAMetalLayer
         
         metalLayer?.wantsExtendedDynamicRangeContent = true
+        // Here you tell the view to expect everything rendered into its renderable to be in BT.2100 color space,
+        // so you need to make sure that your render pipeline does that.
         metalLayer.colorspace = CGColorSpace(name: CGColorSpace.itur_2100_HLG)
         
         createTextureCache()
@@ -528,6 +530,11 @@ class MetalViewHDR: MTKView {
         let currentTexture = currentDrawable.texture
         
      //   NSLog("Image color space \(image.colorSpace), \(CGColorSpaceUsesITUR_2100TF(image.colorSpace!))")
+
+        // Here you tell the context to render the output in the image's color space. Without the changes to the capture settings,
+        // this would have been extended sRGB, which mismatches from the BT.2100 you specified above.
+        // Alternatively to the changes to the capture format, you would also have used the same color space that the view was expecting here.
+        // In this case, Core Image would have performed the color space conversion to the view's target space.
         context.render(scaledImage, to: currentTexture, commandBuffer: commandBuffer, bounds: CGRect(x: 0, y: 0, width: CGFloat(currentTexture.width), height: CGFloat(currentTexture.height)), colorSpace: image.colorSpace ?? CGColorSpaceCreateDeviceRGB())
         
         

@@ -96,6 +96,9 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
                 do {
                     try device.lockForConfiguration()
                     device.activeFormat = proRes422Format
+                    // This tells AVCapture to produce pixel buffers with BT.2020 color space,
+                    // otherwise it would default to an sRGB color space with extended (EDR) values.
+                    device.activeColorSpace = .HLG_BT2020
                     device.unlockForConfiguration()
                 } catch {
                     return
